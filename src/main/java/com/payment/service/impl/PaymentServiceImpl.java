@@ -4,15 +4,18 @@ import org.springframework.stereotype.Service;
 
 import com.payment.pojo.CreatePaymentRequest;
 import com.payment.pojo.InitiatePaymentRequest;
+import com.payment.service.helper.PPCreateOrderHelper;
 import com.payment.service.interfaces.PaymentService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
 
-	
+	private final PPCreateOrderHelper ppCreateOrderHelper;
 	
 	@Override
 	public String createPayment(CreatePaymentRequest createPaymentRequest) {
@@ -26,6 +29,19 @@ public class PaymentServiceImpl implements PaymentService {
 	public String initiatePayment(String tnxReference , InitiatePaymentRequest initiatePaymentRequest)	 {
 		log.info("Initiated payment ...  tnxReference : {} ", tnxReference);
 		return "payment initiated successfully !" + tnxReference + " " + initiatePaymentRequest ;
+	
+	  
+		// make api call to paypal-provider to creareOrder api 
+		/*
+		 * q Prepare HttpRequest 
+		 *  2 pass to httpServiceEngine
+		 *  3 process the response 
+		 *  
+		 */
+	
+		
+	
+	
 	}
 	
 	@Override
