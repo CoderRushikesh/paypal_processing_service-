@@ -2,9 +2,9 @@ package com.payment.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.payment.constant.ErrorCodeEnum;
 import com.payment.pojo.ErrorResponse;
@@ -25,19 +25,30 @@ public class GlobalExceptionHandler {
 	}
     
     
-    @ExceptionHandler(Exception.class)
-	 public ResponseEntity<ErrorResponse> handleException(Exception ex)
-	 // create method type of ErrorRespose the name of the method is HANDLE_paypal_Exception , and passed 
-	 //pyapalProviderException object 
-	 {
-		 log.error("handling paypalProviderException : {} " , ex.getMessage() , ex);
-		 ErrorResponse error = new ErrorResponse(ErrorCodeEnum.GENERIC_ERROR.getErrorCode(), ErrorCodeEnum.GENERIC_ERROR.getErrorMessage());
-		 // createing the create the object of error response by passing errorCode , errorMessage 
-		 
-		 return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-		 // it's provided by spring boot to return the error and httpStatus 
-		 
-		 
+	// NoResourceFoundException
+	@ExceptionHandler(NoResourceFoundException.class)
+	public ResponseEntity<ErrorResponse> handleNoResourceFoundException(
+			NoResourceFoundException ex) {
+		log.error("Handling NoResourceFoundException: {}", ex.getMessage(), ex);
+		
+		ErrorResponse error = new ErrorResponse(
+				ErrorCodeEnum.RESOURCE_NOT_FOUND.getErrorCode(), 
+				ErrorCodeEnum.RESOURCE_NOT_FOUND.getErrorMessage());
+		
+		return new ResponseEntity<>(error, HttpStatus.NOT_FOUND); 
+	}
+	
+	@ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleException(
+    		Exception ex) {
+		log.error("Handling generic Exception: {}", ex.getMessage(), ex);
+		
+		ErrorResponse error = new ErrorResponse(
+				ErrorCodeEnum.GENERIC_ERROR.getErrorCode(), 
+				ErrorCodeEnum.GENERIC_ERROR.getErrorMessage());
+        
+		return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+
 	 }
 	
 }

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.payment.pojo.CreatePaymentRequest;
 import com.payment.pojo.InitiatePaymentRequest;
+import com.payment.pojo.PaymentResponse;
 import com.payment.service.interfaces.PaymentService;
 
 import lombok.RequiredArgsConstructor;
@@ -22,12 +23,14 @@ public class processingController {
 	private final PaymentService paymentService;
 	
 	@PostMapping
-	public String createPayment(@RequestBody CreatePaymentRequest createPaymentRequesst) {
-		log.info("Created  payment ... ");
+	public String createPayment(@RequestBody CreatePaymentRequest createPaymentRequest) {
+		log.info("Creating payment... ||createPaymentRequest:{}",
+				createPaymentRequest);
 		
-		String response =	paymentService.createPayment(createPaymentRequesst);
+		String response = paymentService.createPayment(createPaymentRequest);
+		log.info("Payment creation response from service: {}", response);
 		
-		return response ;
+		return response;
 	}
 	
 	
