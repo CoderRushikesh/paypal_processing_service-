@@ -1,8 +1,12 @@
 package com.payment.service.impl;
 
+import java.util.UUID;
+
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.payment.dto.TransactionDto;
 import com.payment.http.HttpRequest;
 import com.payment.http.HttpServiceEngine;
 import com.payment.pojo.CreatePaymentRequest;
@@ -25,17 +29,34 @@ public class PaymentServiceImpl implements PaymentService {
 	private final HttpServiceEngine httpServiceEngine;
 //	private final TransactionStatusProcessor TransactionStatusProcessor ;
 	private final PaymentStatusService paymentStatusService;
+	private final ModelMapper modelMapper;
+	
+	
+	
 	@Override
-	public String createPayment(CreatePaymentRequest createPaymentRequest) {
+	public PaymentResponse createPayment(CreatePaymentRequest createPaymentRequest) {
 	 log.info("Created  payment ... ||createPaymentRequest:{}", createPaymentRequest);
 		
+	 TransactionDto txndto =  modelMapper.map(createPaymentRequest, TransactionDto.class);
+	 log.info("Mapped CreatePaymentRequest to TransactionDto : {} ", txndto);
 	 
+	 txndto.setTxnStatusId(1);
+	 String txnReference = UUID.randomUUID().toString();
 	 
-	 String response = paymentStatusService.processPayment(1);
+	 txndto.setTxnStatusId(txnReference.hashCode()); // for demo purpose using hashcode of uuid as status id
+	 txndto.setTxnReference(txnReference);
+	 
+	 TransactionDto response = paymentStatusService.processPayment(txndto);
+	 
+	 PaymentResponse paymentResponse = new PaymentResponse();
+	 paymentResponse.setTxnReference(response.getTxnReference());
+	 paymentResponse.setTxnStatusId(response.getTxnStatusId());
+	 
+
  
 	 log.info("Response from TransactionStatusProcessor : {} " , response);
 	 
-	 return  "Payment created successfully !" + createPaymentRequest +"\n" + response ;
+	 return  paymentResponse ;
 	}
 	
 	

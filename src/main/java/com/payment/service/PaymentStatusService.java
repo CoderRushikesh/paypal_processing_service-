@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.payment.constant.ErrorCodeEnum;
+import com.payment.dto.TransactionDto;
 import com.payment.exception.ProcessingServiceException;
 import com.payment.service.factory.PaymentStatusFactory;
 import com.payment.service.interfaces.TransactionStatusProcessor;
@@ -18,26 +19,25 @@ public class PaymentStatusService {
 
    private final PaymentStatusFactory paymentStatusFactory;
 //   private final TransactionStatusProcessor  processor;
-
-	public String processPayment(int statusId) {
+	public TransactionDto processPayment(TransactionDto txnDto) {
 	log.info("Processing payment status appropriate processor based on statusId ");	
 	
-	// TODO invoke factory to get the correct object of the processor based on statusId 
+   int statusId = txnDto.getTxnStatusId(); 
 	TransactionStatusProcessor processor = paymentStatusFactory.getProcessor(statusId);
        
 	
 	if(processor == null) {
-		log.error("No processor found for statusId: {}" , statusId);
+		log.error("No processor found for statusId: {}" , txnDto);
 		throw new ProcessingServiceException(
 		ErrorCodeEnum.NO_STATUS_PROCESSOR_FOUND.getErrorCode(), ErrorCodeEnum.NO_STATUS_PROCESSOR_FOUND.getErrorMessage() , HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 	
 //	TransactionStatusProcessor processor = null;
 	
-	String response =	processor.processStatus(statusId + " ");
+	TransactionDto response =	processor.processStatus(txnDto );
 		
 	 log.info("Processed payment status with response : {}" , response);
-		return "Processed payment with statusId : " + statusId;
+		return response;
 	}
 	
 }

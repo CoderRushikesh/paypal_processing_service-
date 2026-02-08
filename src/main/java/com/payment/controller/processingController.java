@@ -23,11 +23,11 @@ public class processingController {
 	private final PaymentService paymentService;
 	
 	@PostMapping
-	public String createPayment(@RequestBody CreatePaymentRequest createPaymentRequest) {
+	public PaymentResponse createPayment(@RequestBody CreatePaymentRequest createPaymentRequest) {
 		log.info("Creating payment... ||createPaymentRequest:{}",
 				createPaymentRequest);
 		
-		String response = paymentService.createPayment(createPaymentRequest);
+		PaymentResponse response = paymentService.createPayment(createPaymentRequest);
 		log.info("Payment creation response from service: {}", response);
 		
 		return response;

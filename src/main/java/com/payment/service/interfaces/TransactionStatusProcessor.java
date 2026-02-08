@@ -1,7 +1,9 @@
 package com.payment.service.interfaces;
 
+import com.payment.dto.TransactionDto;
+
 public interface TransactionStatusProcessor {
 
-	public String processStatus(String statusId);
+	public TransactionDto processStatus(TransactionDto txnDto);
 	
 }
