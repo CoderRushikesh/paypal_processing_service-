@@ -1,18 +1,37 @@
 package com.payment.service.impl.statusProcessor;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+
 import com.payment.dto.TransactionDto;
+import com.payment.dto.interfaces.TransactionDao;
+import com.payment.entity.TransactionEntity;
 import com.payment.service.interfaces.TransactionStatusProcessor;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+@Service
 @Slf4j
+@RequiredArgsConstructor
 public class pendingStatusProcessor implements TransactionStatusProcessor {
 
+	private final TransactionDao transactionDao;
+
+	private final ModelMapper modelMapper;
+
 	@Override
-	public TransactionDto processStatus(TransactionDto statusId) {
-	log.info("Processing 'PENDING' status for transaction: {}", statusId);
-		// TODO Auto-generated method stub
-		return null;
+	public TransactionDto processStatus(TransactionDto txnDto) {
+		log.info("Processing 'PENDING' status for txnDto: {}", txnDto);
+		
+		// convert DTO to Entity
+		TransactionEntity txnEntity = modelMapper.map(
+				txnDto, TransactionEntity.class);
+		
+		transactionDao.updateTransaction(txnEntity);
+		log.info("Updated TransactionEntity in DB for PENDING status: {}", txnEntity);
+
+		return txnDto;
 	}
 
 }

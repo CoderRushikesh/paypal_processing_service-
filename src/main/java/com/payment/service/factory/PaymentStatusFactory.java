@@ -3,9 +3,12 @@ package com.payment.service.factory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import com.payment.dto.TransactionDto;
+import com.payment.service.impl.statusProcessor.ApprovedStatusProcessor;
 import com.payment.service.impl.statusProcessor.CreatedStatusProcessor;
+import com.payment.service.impl.statusProcessor.FailedStatusProcessor;
 import com.payment.service.impl.statusProcessor.InitiatedStatusProcessor;
+import com.payment.service.impl.statusProcessor.SuccessStatusProcessor;
+import com.payment.service.impl.statusProcessor.pendingStatusProcessor;
 import com.payment.service.interfaces.TransactionStatusProcessor;
 
 import lombok.RequiredArgsConstructor;
@@ -15,33 +18,42 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class PaymentStatusFactory {
-
-private final ApplicationContext contextProvider;
 	
-	private final TransactionStatusProcessor createdStatusProcessor;
+	private final ApplicationContext applicationContext;
 	
-	public TransactionStatusProcessor getProcessor(int statusId) {
-		log.info("Getting processor for statusId: {}", statusId);
-	
-		// switch based on statusId if statusId = 1 
-  
+	public TransactionStatusProcessor getStatusProcessor(int statusId) {
+		log.info("Getting status processor for statusId: {}", statusId);
+		
+		//switch based on statusId. If statusId = 1, return CreatedStatusProcessor object.
 		switch (statusId) {
-		
-		case 1 : 
+		case 1:
 			log.info("Returning CreatedStatusProcessor for statusId: {}", statusId);
-			return contextProvider.getBean("CreatedStatusProcessor", CreatedStatusProcessor.class);
-		
-		case 2 : 
-			log.info("Returing initiatedStatusProcessor for statusId: {}", statusId);
-	      return  contextProvider.getBean("InitiatedStatusProcessor", InitiatedStatusProcessor.class);
-		
-	      
+			return applicationContext.getBean(CreatedStatusProcessor.class);
+		case 2:
+			log.info("Returning InitiatedStatusProcessor for statusId: {}", statusId);
+			return applicationContext.getBean(InitiatedStatusProcessor.class);
 			
-			default :
-				log.warn("No processor found for statusId: {}", statusId);
-				return null;
+		case 3:
+			log.info("Returning PendingStatusProcessor for statusId: {}", statusId);
+			return applicationContext.getBean(pendingStatusProcessor.class);
+			
+		case 4:
+			log.info("Returning ApprovedStatusProcessor for statusId: {}", statusId);
+			return applicationContext.getBean(ApprovedStatusProcessor.class);
+			
+		case 5:
+			log.info("Returning SuccessStatusProcessor for statusId: {}", statusId);
+			return applicationContext.getBean(SuccessStatusProcessor.class);
+			
+		case 6:
+			log.info("Returning FailedStatusProcessor for statusId: {}", statusId);
+			return applicationContext.getBean(FailedStatusProcessor.class);
+		
+		default:
+			log.warn("No processor found for statusId: {}", statusId);
+			return null;
 		}
 		
 	}
-	
+
 }

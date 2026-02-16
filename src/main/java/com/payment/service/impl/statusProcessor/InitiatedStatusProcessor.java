@@ -1,19 +1,39 @@
 package com.payment.service.impl.statusProcessor;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+
 import com.payment.dto.TransactionDto;
+import com.payment.dto.interfaces.TransactionDao;
+import com.payment.entity.TransactionEntity;
 import com.payment.service.interfaces.TransactionStatusProcessor;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+@Service
 @Slf4j
+@RequiredArgsConstructor
 public class InitiatedStatusProcessor implements TransactionStatusProcessor {
+	
+	private final TransactionDao transactionDao;
+	
+	private final ModelMapper modelMapper;
 
 	@Override
-	public TransactionDto processStatus(TransactionDto statusId) {
-		// TODO Auto-generated method stub
-		log.info("Processing 'INITIATED' status for transaction: {}", statusId);
+	public TransactionDto processStatus(TransactionDto txnDto) {
+		log.info("Processing 'INITIATED' status for txnDto: {}", txnDto);
 		
-		return null;
+		// convert DTO to Entity
+		TransactionEntity txnEntity = modelMapper.map(
+				txnDto, TransactionEntity.class);
+		
+		transactionDao.updateTransaction(txnEntity);
+		log.info("Updated TransactionEntity in DB for 'INITIATED' "
+				+ "status: {}", txnEntity);
+		
+		return txnDto;
 	}
 
 }
+

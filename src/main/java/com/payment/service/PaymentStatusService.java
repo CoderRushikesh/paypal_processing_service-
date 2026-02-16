@@ -23,7 +23,7 @@ public class PaymentStatusService {
 	log.info("Processing payment status appropriate processor based on statusId ");	
 	
    int statusId = txnDto.getTxnStatusId(); 
-	TransactionStatusProcessor processor = paymentStatusFactory.getProcessor(statusId);
+	TransactionStatusProcessor processor = paymentStatusFactory.getStatusProcessor(statusId);
        
 	
 	if(processor == null) {

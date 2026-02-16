@@ -46,8 +46,7 @@ public class TransactionDaoImpl implements TransactionDao {
 
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 
-		JdbcTemplate jdbcTemplate2 = new JdbcTemplate();
-		jdbcTemplate2.update(sql, params, keyHolder, new String[]{"id"});
+		jdbcTemplate.update(sql, params, keyHolder, new String[]{"id"});
 
 		// Extract generated ID
 		Number generatedId = keyHolder.getKey();
@@ -59,6 +58,7 @@ public class TransactionDaoImpl implements TransactionDao {
 		return txnEntity;
 	}
 
+	@Override
 	public TransactionEntity getTransactionByTxnReference(String txnReference) {
 		String sql = "SELECT * FROM `Transaction` WHERE txnReference = :txnReference LIMIT 1";
 
@@ -75,6 +75,7 @@ public class TransactionDaoImpl implements TransactionDao {
 		return txnEntity;
 	}
 
+	@Override
 	public void updateTransaction(TransactionEntity transaction) {
 		
 	    String sql = "UPDATE `Transaction` " +
@@ -103,5 +104,7 @@ public class TransactionDaoImpl implements TransactionDao {
 					ErrorCodeEnum.ERROR_UPDATING_TRANSACTION.getErrorMessage(),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-	
-}}
+
+	}
+
+}

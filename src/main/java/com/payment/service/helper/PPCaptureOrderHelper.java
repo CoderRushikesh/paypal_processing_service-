@@ -13,9 +13,7 @@ import com.payment.dto.TransactionDto;
 import com.payment.exception.ProcessingServiceException;
 import com.payment.http.HttpRequest;
 import com.payment.paypalprovider.PPOrderResponse;
-import com.payment.paypalprovider.ppCreateOrderReq;
 import com.payment.pojo.ErrorResponse;
-import com.payment.pojo.InitiatePaymentRequest;
 import com.payment.util.JsonUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -24,39 +22,34 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PPCreateOrderHelper {
+public class PPCaptureOrderHelper {
 	
 	private final JsonUtil jsonUtil;
 	
-	@Value("${paypalprovider.createorder.url}")
-	private String payalProviderCreateOrderUrl;
+	@Value("${paypalprovider.captureorder.url}")
+	private String payalProviderCreateOrderUrlTemplate;
 
 	public HttpRequest prepareHttpRequest(
-			String txnReference, InitiatePaymentRequest initiatePaymentRequest, 
+			String txnReference, 
 			TransactionDto txnDto) {
 		log.info("Preparing HttpRequest for PayPal create order... "
-				+ "||txnReference:{} | initiatePaymentRequest:{} | txnDto:{}",
-				txnReference, initiatePaymentRequest, txnDto);
+				+ "||txnReference:{} | txnDto:{}",
+				txnReference, txnDto);
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		
-		ppCreateOrderReq ppCreateOrderReq = new ppCreateOrderReq();
-		ppCreateOrderReq.setAmount(txnDto.getAmount().doubleValue());
-		ppCreateOrderReq.setCurrencyCode(txnDto.getCurrency());
-		ppCreateOrderReq.setReturnUrl(initiatePaymentRequest.getSuccessUrl());
-		ppCreateOrderReq.setCancelUrl(initiatePaymentRequest.getCancleUrl());
-		
-		String requestAsJson = jsonUtil.toJson(ppCreateOrderReq);
+		String captureOrderUrl = payalProviderCreateOrderUrlTemplate.replace(
+				"{provider-reference}", txnDto.getProviderReference());
 
 		// create HttpRequest
 		HttpRequest httpRequest = new HttpRequest();
 		httpRequest.setHttpMethod(HttpMethod.POST);
-		httpRequest.setUrl(payalProviderCreateOrderUrl);
+		httpRequest.setUrl(captureOrderUrl);
 		httpRequest.setHttpHeaders(headers);
-		httpRequest.setBody(requestAsJson);
+		httpRequest.setBody("");
 		
-		log.info("Prepared HttpRequest for PayPal create order: {}", httpRequest);
+		log.info("Prepared HttpRequest for PayPal captureOrder: {}", httpRequest);
 		return httpRequest;
 	}
 
@@ -81,7 +74,7 @@ public class PPCreateOrderHelper {
 			if(responseObj != null 
 					&& responseObj.getOrderId() != null 
 					&& responseObj.getPaypalStatus() != null
-					&& responseObj.getRedirectUrl() != null) {
+					&& responseObj.getPaypalStatus().equals("COMPLETED")) {
 				log.info("Parsed PayPal order response successfully: {}",
 						responseObj);
 				return responseObj;

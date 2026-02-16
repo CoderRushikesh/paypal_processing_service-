@@ -6,12 +6,12 @@ import com.payment.pojo.PaymentResponse;
 
 public interface PaymentService {
 
-	public PaymentResponse createPayment(CreatePaymentRequest createPaymentRequest);
+public PaymentResponse createPayment(CreatePaymentRequest createPaymentRequest);
 	
-	public String initiatePayment(String tnxReference , InitiatePaymentRequest initiatePaymentRequest);
+	public PaymentResponse initiatePayment(String txnReference, 
+			InitiatePaymentRequest initiatePaymentRequest);
 	
-	public String capturePayment(String tnxReference);
-	
-	
+	public PaymentResponse capturePayment(String txnReference);
+
 	
 }

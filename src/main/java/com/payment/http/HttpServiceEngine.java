@@ -2,11 +2,14 @@
 
 package com.payment.http;
 
+import org.springframework.http.HttpStatus;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
-import com.payment.PaypalProviderServiceApplication;
+import com.payment.constant.ErrorCodeEnum;
+import com.payment.exception.ProcessingServiceException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,44 +19,35 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class HttpServiceEngine {
 
-    private final PaypalProviderServiceApplication paypalProviderServiceApplication;
-    private final RestClient restClient;
- 
-    
-    
-    // Sandbox credentials from PayPal Developer Dashboard
-    private static final String CLIENT_ID = "ARPevS9Y8_-qvuIRMkrnutgE0c4I4n9APy67mOqClpMYQeP5RJJMYQ2hsRXG1Q0JovdWn5vSZImP7MKC";
-    private static final String CLIENT_SECRET = "EDUkTKHM5B5ExZALMmD-P3boqYfuHHhxf_Hlh4PQRcJCaotJR18YgizZsDVKE01fN3tWcPgpxuLYuwcG";
-    
-    
-    public ResponseEntity<String> makeHttpRequest(HttpRequest httpRequest) {
-        log.info("Making HTTP call to PayPal OAuth2 token endpoint...");
+	private final RestClient restClient;
 
-       
-        // Execute request
-        
-        ResponseEntity<String> httpResponse = null;
+	public ResponseEntity<String> makeHttpCall(HttpRequest httpRequest) {
+		log.info("Making HTTP call in HttpServiceEngine");
+
 		try {
-			httpResponse = restClient
+			ResponseEntity<String> httpResponse = restClient
 					.method(httpRequest.getHttpMethod())
-			        .uri(httpRequest.getUrl())
-			        .headers(h -> h.addAll(httpRequest.getHttpHeaders()))   // 
-			        .body(httpRequest.getBody())
-			        .retrieve()
-			        .toEntity(String.class);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+					.uri(httpRequest.getUrl())
+					.headers(
+							restClientHeaders -> 
+							restClientHeaders.addAll(
+									httpRequest.getHttpHeaders()))
+					.body(httpRequest.getBody())
+					.retrieve()
+					.toEntity(String.class);
 
-//		
+			log.info("HTTP call completed httpResponse:{}", httpResponse);
+
+			return httpResponse;
 		
-        log.info("Response from PayPal: {}" , httpResponse);
-        return httpResponse;
-    }
+			
+		} catch (Exception e) { // No Response case.
+			log.error("Exception while preparing form data: {}", e.getMessage(), e);
 
-	
+			throw new ProcessingServiceException(
+					ErrorCodeEnum.PAYPAL_PROVIDER_SERVICE_UNAVAILABLE.getErrorCode(),
+					ErrorCodeEnum.PAYPAL_PROVIDER_SERVICE_UNAVAILABLE.getErrorMessage(),
+					HttpStatus.SERVICE_UNAVAILABLE);
+		}
+	}
 }
-
-
-

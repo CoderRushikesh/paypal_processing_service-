@@ -15,11 +15,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/processes")
+@RequestMapping("/v1/payments")
 @Slf4j
 @RequiredArgsConstructor
-public class processingController {
-
+public class PaymentController {
+	
 	private final PaymentService paymentService;
 	
 	@PostMapping
@@ -33,28 +33,27 @@ public class processingController {
 		return response;
 	}
 	
-	
-	@PostMapping("/{tnxReference}/initiate")
-	public String initiatePayment(@PathVariable String tnxReference , 
-		 @RequestBody InitiatePaymentRequest initiatePaymentRequest) {
+	@PostMapping("/{txnReference}/initiate")
+	public PaymentResponse initiatePayment(@PathVariable String txnReference,
+			@RequestBody InitiatePaymentRequest initiatePaymentRequest) {
+		log.info("Initiating payment... txnReference: {}| initiatePaymentRequest:{}", 
+				txnReference, initiatePaymentRequest);
 		
-		log.info("Initiated payment ...  tnxReference : {} | InitiatePaymentRequest ", tnxReference , initiatePaymentRequest);
+		PaymentResponse response = paymentService.initiatePayment(
+				txnReference, initiatePaymentRequest);
+		log.info("Payment initiation response from service: {}", response);
 		
-		String response =	paymentService.initiatePayment(tnxReference , initiatePaymentRequest);
-		
-		return response ;
+		return response;
 	}
 	
-	
-	@PostMapping("/{tnxReference}/capture")
-	public String capturePayment(@PathVariable String tnxReference)	 {
+	@PostMapping("/{txnReference}/capture")
+	public PaymentResponse capturePayment(@PathVariable String txnReference) {
+		log.info("Capturing payment... txnReference: {}", txnReference);
 		
-		log.info("Captured payment ... ");
+		PaymentResponse response = paymentService.capturePayment(txnReference);
+		log.info("Payment capture response from service: {}", response);
 		
-		String response =	paymentService.capturePayment(tnxReference);
-		
-		return response ;
+		return response;
 	}
-	
-	
+
 }
